@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGRIPASS</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --green-dark: #1a4731;
+    --green-main: #1e6b46;
+    --green-mid: #2d8653;
+    --green-light: #3aab68;
+    --green-pale: #d4edda;
+    --green-ultra: #f0faf4;
+    --gold: #c9a227;
+    --gold-light: #f0d060;
+    --orange: #e05c00;
+    --orange-light: #ff8c42;
+    --blue-govt: #003580;
+    --white: #ffffff;
+    --grey-ultra: #f8f9fa;
+    --grey-light: #f0f2f5;
+    --grey-mid: #dee2e6;
+    --grey: #868e96;
+    --text-dark: #1a1a2e;
+    --text-mid: #495057;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow: 0 4px 20px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.18);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 50%, #e0f2f1 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* PHONE FRAME */
+  .phone {
+    width: 393px;
+    height: 800px;
+    background: var(--grey-ultra);
+    border-radius: 44px;
+    box-shadow:
+      0 0 0 10px #1a1a1a,
+      0 0 0 12px #333,
+      0 30px 80px rgba(0,0,0,0.4);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    background: var(--green-dark);
+    padding: 12px 24px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .status-time { color: white; font-size: 13px; font-weight: 700; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons i { color: white; font-size: 11px; }
+
+  /* SCREEN */
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .screen.active { display: flex; }
+
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 80px;
+  }
+
+  .scroll-content::-webkit-scrollbar { width: 3px; }
+  .scroll-content::-webkit-scrollbar-thumb { background: var(--green-pale); border-radius: 3px; }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--green-dark);
+    padding: 14px 20px 16px;
+    flex-shrink: 0;
+  }
+
+  .topbar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .topbar h2 { color: white; font-size: 18px; font-weight: 700; }
+  .topbar p { color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 2px; }
+
+  .back-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    display: flex;
+    border-top: 1px solid var(--grey-mid);
+    padding-bottom: 6px;
+    z-index: 50;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px 6px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 3px;
+    background: var(--green-main);
+    border-radius: 0 0 3px 3px;
+  }
+
+  .nav-item i { font-size: 20px; color: var(--grey); transition: all 0.2s; }
+  .nav-item.active i { color: var(--green-main); }
+  .nav-label { font-size: 10px; color: var(--grey); margin-top: 4px; font-weight: 600; }
+  .nav-item.active .nav-label { color: var(--green-main); }
+
+  .nav-badge {
+    position: absolute;
+    top: 7px; right: 18px;
+    background: var(--orange);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* CARDS */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 18px;
+    margin: 10px 14px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .card-title {
+    font-size: 11px;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* BUTTONS */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green-main), var(--green-dark));
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(30,107,70,0.35);
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-secondary {
+    background: var(--green-ultra);
+    color: var(--green-dark);
+    border: 1.5px solid var(--green-pale);
+    padding: 13px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-orange {
+    background: linear-gradient(135deg, #e05c00, #ff7043);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 4px 14px rgba(224,92,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* INPUT */
+  .input-group { margin-bottom: 14px; }
+
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .input-group input,
+  .input-group select {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--grey-mid);
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    background: var(--grey-ultra);
+    color: var(--text-dark);
+    font-weight: 500;
+  }
+
+  .input-group input:focus,
+  .input-group select:focus {
+    border-color: var(--green-light);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(58,171,104,0.12);
+  }
+
+  /* TAGS */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .tag-green { background: #d4edda; color: #155724; }
+  .tag-orange { background: #fff3cd; color: #856404; }
+  .tag-red { background: #f8d7da; color: #842029; }
+  .tag-blue { background: #cce5ff; color: #004085; }
+
+  /* LOADING */
+  .loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.95);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 200;
+    border-radius: 44px;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+
+  .loading-overlay.show { display: flex; }
+
+  .spinner-wrap {
+    width: 60px; height: 60px;
+    background: var(--green-ultra);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--green-pale);
+    border-top: 3px solid var(--green-main);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-title { font-size: 16px; font-weight: 700; color: var(--green-dark); }
+  .loading-sub { font-size: 12px; color: var(--grey); text-align: center; padding: 0 30px; }
+
+  /* SCORE BAR */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .score-row-icon { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+  .score-row-label { font-size: 12px; color: var(--text-mid); flex: 1; font-weight: 600; }
+
+  .score-bar-wrap {
+    flex: 2;
+    height: 6px;
+    background: var(--grey-mid);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-light), var(--green-dark));
+    border-radius: 3px;
+  }
+
+  .score-pts {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green-dark);
+    width: 38px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* MANDI TABLE */
+  .mandi-table { width: 100%; border-collapse: collapse; }
+
+  .mandi-table th {
+    background: var(--green-ultra);
+    color: var(--green-dark);
+    padding: 10px 8px;
+    font-size: 10px;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    border-bottom: 2px solid var(--green-pale);
+  }
+
+  .mandi-table td {
+    padding: 11px 8px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--grey-ultra);
+    color: var(--text-dark);
+    font-weight: 500;
+  }
+
+  .mandi-table tr.best-row { background: #f0faf4; }
+  .mandi-table tr.best-row td { font-weight: 700; }
+
+  .best-tag {
+    background: var(--green-main);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+
+  /* ALERT ITEMS */
+  .alert-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--grey-ultra);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .alert-item:hover { background: var(--grey-ultra); }
+
+  .alert-dot-wrap {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .dot-green { background: #d4edda; }
+  .dot-orange { background: #fff3cd; }
+  .dot-blue { background: #cce5ff; }
+
+  .alert-content { flex: 1; }
+  .alert-content strong { font-size: 13px; color: var(--text-dark); display: block; margin-bottom: 3px; font-weight: 700; }
+  .alert-content p { font-size: 12px; color: var(--grey); line-height: 1.5; }
+  .alert-time { font-size: 11px; color: var(--grey); white-space: nowrap; margin-top: 2px; }
+
+  /* LANG BTN */
+  .lang-btn {
+    padding: 12px 10px;
+    border: 1.5px solid var(--grey-mid);
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .lang-btn.selected {
+    border-color: var(--green-main);
+    background: var(--green-ultra);
+    color: var(--green-dark);
+  }
+
+  .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+
+  /* OTP */
+  .otp-boxes { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+
+  .otp-box {
+    width: 58px; height: 58px;
+    border: 1.5px solid var(--grey-mid);
+    border-radius: 14px;
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+    background: var(--grey-ultra);
+    color: var(--green-dark);
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .otp-box:focus { border-color: var(--green-main); background: white; box-shadow: 0 0 0 3px rgba(58,171,104,0.12); }
+
+  /* ACTION CARDS */
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px; }
+
+  .action-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px 14px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1.5px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .action-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--green-light), var(--green-dark));
+    border-radius: 14px 14px 0 0;
+  }
+
+  .action-card:active { transform: scale(0.97); border-color: var(--green-pale); }
+
+  .action-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--green-ultra);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  .action-title { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+  .action-sub { font-size: 11px; color: var(--grey); margin-top: 3px; }
+
+  /* TIER ITEMS */
+  .tier-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--grey-ultra);
+    margin-bottom: 8px;
+    border: 1.5px solid transparent;
+  }
+
+  .tier-item.active {
+    background: var(--green-ultra);
+    border-color: var(--green-pale);
+  }
+
+  .tier-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--grey-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .tier-item.active .tier-icon { background: var(--green-pale); }
+  .tier-score { font-size: 13px; color: var(--text-mid); flex: 1; font-weight: 600; }
+  .tier-item.active .tier-score { color: var(--green-dark); font-weight: 700; }
+  .tier-amount { font-size: 14px; font-weight: 800; color: var(--grey); }
+  .tier-item.active .tier-amount { color: var(--green-dark); }
+
+  /* UPLOAD BOX */
+  .upload-box {
+    border: 2px dashed var(--green-light);
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--green-ultra);
+    transition: all 0.2s;
+  }
+
+  .upload-box:hover { background: var(--green-pale); }
+  .upload-box i { font-size: 30px; color: var(--green-main); margin-bottom: 10px; }
+  .upload-box p { font-size: 13px; color: var(--grey); margin-top: 4px; }
+  .upload-box strong { font-size: 14px; color: var(--green-dark); }
+
+  /* OCR RESULT */
+  .ocr-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--grey-ultra);
+    font-size: 13px;
+  }
+
+  .ocr-row:last-child { border-bottom: none; }
+  .ocr-key { color: var(--grey); font-weight: 500; }
+  .ocr-val { font-weight: 700; color: var(--text-dark); text-align: right; }
+
+  /* DECAY CLOCK */
+  .decay-clock {
+    background: linear-gradient(135deg, #b84800, #e05c00, #ff7043);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .decay-clock::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+
+  .clock-label { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; }
+  .clock-time { font-size: 48px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .clock-sub { font-size: 11px; opacity: 0.75; margin-top: 3px; }
+
+  /* RECOMMENDATION BOX */
+  .recommendation-box {
+    background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    margin: 10px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .recommendation-box::after {
+    content: '✓';
+    position: absolute;
+    right: 20px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px;
+    opacity: 0.08;
+    font-weight: 900;
+  }
+
+  .rec-label { font-size: 10px; opacity: 0.75; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; }
+  .rec-main { font-size: 17px; font-weight: 800; margin: 6px 0 4px; }
+  .rec-detail { font-size: 12px; opacity: 0.85; line-height: 1.6; }
+  .rec-earning { font-size: 30px; font-weight: 800; color: var(--gold-light); margin-top: 10px; }
+
+  /* ════════════════════════════════════
+     GOVERNMENT CARD STYLES
+  ════════════════════════════════════ */
+
+  .govt-card-outer {
+    margin: 14px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(201,162,39,0.4);
+  }
+
+  /* CARD HEADER — GOVT STYLE */
+  .govt-card-header {
+    background: linear-gradient(135deg, #003580 0%, #004aad 50%, #003580 100%);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+
+  .govt-emblem {
+    width: 38px; height: 38px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .govt-header-text { flex: 1; }
+  .govt-ministry { font-size: 8px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .govt-card-name { font-size: 13px; color: white; font-weight: 800; letter-spacing: 1.5px; }
+  .govt-card-sub { font-size: 9px; color: rgba(255,255,255,0.7); margin-top: 1px; }
+
+  .govt-card-logo {
+    font-size: 11px;
+    color: var(--gold-light);
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-align: right;
+  }
+
+  /* GOLD STRIP */
+  .gold-strip {
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+  }
+
+  /* CARD BODY */
+  .govt-card-body {
+    background: linear-gradient(170deg, #f8fcf9 0%, #ffffff 50%, #f4fbf6 100%);
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  /* PHOTO */
+  .farmer-photo-wrap {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .farmer-photo {
+    width: 72px; height: 84px;
+    border-radius: 8px;
+    border: 2px solid var(--gold);
+    overflow: hidden;
+    background: #e8f0fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+
+  .farmer-photo-inner {
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, #b8d4f8 0%, #7fb3f5 40%, #5a9cf0 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+  }
+
+  .farmer-avatar-head {
+    width: 32px; height: 32px;
+    background: #f4c78a;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    border: 2px solid #e8b56a;
+  }
+
+  .farmer-avatar-body {
+    width: 56px; height: 38px;
+    background: #4a7c59;
+    border-radius: 28px 28px 0 0;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .farmer-avatar-turban {
+    width: 36px; height: 14px;
+    background: #ff6b35;
+    border-radius: 18px 18px 0 0;
+    position: absolute;
+    top: 4px;
+    z-index: 2;
+  }
+
+  .photo-stamp {
+    font-size: 8px;
+    color: var(--blue-govt);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
+  /* CARD DETAILS */
+  .card-details { flex: 1; }
+
+  .card-field { margin-bottom: 8px; }
+  .card-field-label {
+    font-size: 8px;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .card-field-value {
+    font-size: 13px;
+    color: var(--text-dark);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .card-field-value.big {
+    font-size: 22px;
+    color: var(--green-dark);
+    font-weight: 900;
+  }
+
+  /* SCORE METER */
+  .score-meter-wrap { margin: 6px 0; }
+
+  .score-meter-bar {
+    height: 8px;
+    background: var(--grey-mid);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .score-meter-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd700, #2d8653);
+    border-radius: 4px;
+    width: 65%;
+  }
+
+  .score-meter-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--grey);
+    margin-top: 2px;
+  }
+
+  /* CARD BOTTOM */
+  .govt-card-bottom {
+    background: linear-gradient(135deg, #f8fcf9, #eef7f1);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--green-pale);
+  }
+
+  .card-id-section { }
+  .card-id-label { font-size: 8px; color: var(--grey); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+  .card-id-value { font-size: 11px; color: var(--text-dark); font-weight: 800; letter-spacing: 1px; margin-top: 2px; font-family: monospace; }
+
+  /* QR CODE */
+  .qr-wrap {
+    width: 54px; height: 54px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--grey-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .qr-inner {
+    width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 1px;
+  }
+
+  .qr-cell { border-radius: 1px; }
+  .qr-cell.b { background: #1a1a1a; }
+  .qr-cell.w { background: white; }
+
+  /* VALIDITY STRIP */
+  .validity-strip {
+    background: linear-gradient(135deg, #003580, #004aad);
+    padding: 6px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .validity-text { font-size: 9px; color: rgba(255,255,255,0.85); font-weight: 600; }
+  .validity-date { font-size: 10px; color: var(--gold-light); font-weight: 800; }
+
+  /* CHIP */
+  .chip {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--grey-mid);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: white;
+    color: var(--text-mid);
+    transition: all 0.2s;
+  }
+
+  .chip.selected {
+    border-color: var(--green-main);
+    background: var(--green-ultra);
+    color: var(--green-dark);
+  }
+
+  /* VERIFICATION ITEM */
+  .verify-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    background: var(--green-ultra);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--green-pale);
+  }
+
+  .verify-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--green-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .verify-content { flex: 1; }
+  .verify-title { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+  .verify-sub { font-size: 11px; color: var(--grey); margin-top: 2px; }
+
+  /* DIVIDER */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 14px 14px 6px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar" id="statusBarEl">
+    <span class="status-time">9:41 AM</span>
+    <div class="status-icons">
+      <i class="fas fa-signal"></i>
+      <i class="fas fa-wifi"></i>
+      <i class="fas fa-battery-full"></i>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+    <div class="loading-title" id="loadingText">Processing...</div>
+    <div class="loading-sub" id="loadingSub">Please wait a moment</div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 1 — SPLASH
+  ══════════════════════════════════ -->
+  <div class="screen active" id="splash" style="background:linear-gradient(160deg,#0d2b1d 0%,#1a4731 40%,#1e6b46 100%); justify-content:center; align-items:center; flex-direction:column; gap:0;">
+
+    <div style="width:90px;height:90px;background:rgba(255,255,255,0.1);border-radius:28px;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,0.2);margin-bottom:20px;">
+      <i class="fas fa-leaf" style="font-size:40px;color:#3aab68;"></i>
+    </div>
+
+    <div style="color:white;font-size:34px;font-weight:900;letter-spacing:4px;">AGRIPASS</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:11px;letter-spacing:3px;margin-top:4px;text-transform:uppercase;">Farmer Digital Identity</div>
+
+    <div style="margin:24px 30px; padding:16px; background:rgba(255,255,255,0.07); border-radius:14px; border:1px solid rgba(255,255,255,0.12); text-align:center;">
+      <div style="color:#f0d060;font-size:12px;font-style:italic;line-height:1.7;font-weight:500;">
+        "Same Crop. Same Land. Same Effort.<br>Better Information. Better Outcome."
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0;margin:0 20px;width:calc(100% - 40px);">
+      <div style="flex:1;text-align:center;padding:14px 8px;background:rgba(255,255,255,0.07);border-radius:14px 0 0 14px;border:1px solid rgba(255,255,255,0.1);">
+        <div style="color:white;font-size:18px;font-weight:800;">10Cr+</div>
+        <div style="color:rgba(255,255,255,0.55);font-size:10px;margin-top:3px;">Farmers</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:14px 8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-left:0;border-right:0;">
+        <div style="color:white;font-size:18px;font-weight:800;">₹92K Cr</div>
+        <div style="color:rgba(255,255,255,0.55);font-size:10px;margin-top:3px;">Food Wasted</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:14px 8px;background:rgba(255,255,255,0.07);border-radius:0 14px 14px 0;border:1px solid rgba(255,255,255,0.1);">
+        <div style="color:white;font-size:18px;font-weight:800;">48%</div>
+        <div style="color:rgba(255,255,255,0.55);font-size:10px;margin-top:3px;">Loan Rate</div>
+      </div>
+    </div>
+
+    <div style="margin:24px 20px 0;width:calc(100% - 40px);">
+      <button class="btn-primary" onclick="showScreen('login')" style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.35);box-shadow:none;font-size:15px;">
+        <i class="fas fa-arrow-right"></i> Get Started
+      </button>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:20px;align-items:center;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <i class="fas fa-shield-alt" style="color:#3aab68;font-size:12px;"></i>
+        <span style="color:rgba(255,255,255,0.6);font-size:11px;">Govt Verified</span>
+      </div>
+      <div style="width:4px;height:4px;background:rgba(255,255,255,0.3);border-radius:50%;"></div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <i class="fas fa-satellite" style="color:#3aab68;font-size:12px;"></i>
+        <span style="color:rgba(255,255,255,0.6);font-size:11px;">Satellite Powered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 2 — LOGIN
+  ══════════════════════════════════ -->
+  <div class="screen" id="login" style="flex-direction:column;">
+    <div style="background:linear-gradient(135deg,#0d2b1d,#1e6b46);padding:30px 24px 24px;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <i class="fas fa-leaf" style="font-size:22px;color:#3aab68;"></i>
+        <span style="color:white;font-size:22px;font-weight:900;letter-spacing:2px;">AGRIPASS</span>
+      </div>
+      <div style="color:rgba(255,255,255,0.65);font-size:12px;">Ministry of Agriculture & Farmers Welfare</div>
+    </div>
+
+    <div class="scroll-content" style="padding-bottom:20px;">
+
+      <div id="step-lang" style="padding:22px;">
+        <div style="font-size:18px;font-weight:800;color:var(--text-dark);margin-bottom:4px;">Select Language</div>
+        <div style="font-size:13px;color:var(--grey);margin-bottom:20px;">Choose your preferred language / अपनी भाषा चुनें</div>
+        <div class="lang-grid">
+          <div class="lang-btn" onclick="selectLang(this)"><i class="fas fa-check" style="display:none;color:var(--green-main);margin-right:4px;"></i> हिंदी</div>
+          <div class="lang-btn" onclick="selectLang(this)">தமிழ்</div>
+          <div class="lang-btn" onclick="selectLang(this)">తెలుగు</div>
+          <div class="lang-btn" onclick="selectLang(this)">मराठी</div>
+          <div class="lang-btn" onclick="selectLang(this)">ಕನ್ನಡ</div>
+          <div class="lang-btn selected" onclick="selectLang(this)"><i class="fas fa-check" style="color:var(--green-main);margin-right:4px;"></i> English</div>
+        </div>
+        <button class="btn-primary" onclick="showLoginStep('step-phone')">
+          <i class="fas fa-arrow-right"></i> Continue
+        </button>
+      </div>
+
+      <div id="step-phone" style="padding:22px;display:none;">
+        <div style="font-size:18px;font-weight:800;color:var(--text-dark);margin-bottom:4px;">Mobile Number</div>
+        <div style="font-size:13px;color:var(--grey);margin-bottom:24px;">OTP will be sent for verification</div>
+        <div class="input-group">
+          <label><i class="fas fa-mobile-alt"></i> Phone Number</label>
+          <input type="tel" value="+91 98765 43210">
+        </div>
+        <div style="background:var(--green-ultra);border-radius:12px;padding:12px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
+          <i class="fas fa-lock" style="color:var(--green-main);margin-top:1px;font-size:13px;"></i>
+          <span style="font-size:12px;color:var(--text-mid);">Your number is encrypted and used only for secure verification.</span>
+        </div>
+        <button class="btn-primary" onclick="simulateOTP()">
+          <i class="fas fa-paper-plane"></i> Send OTP
+        </button>
+      </div>
+
+      <div id="step-otp" style="padding:22px;display:none;">
+        <div style="font-size:18px;font-weight:800;color:var(--text-dark);margin-bottom:4px;">Enter OTP</div>
+        <div style="font-size:13px;color:var(--grey);margin-bottom:4px;">Sent to +91 98765 43210</div>
+        <div style="font-size:12px;color:var(--green-main);font-weight:600;margin-bottom:20px;"><i class="fas fa-check-circle"></i> OTP received: 4219</div>
+        <div class="otp-boxes">
+          <input class="otp-box" maxlength="1" value="4">
+          <input class="otp-box" maxlength="1" value="2">
+          <input class="otp-box" maxlength="1" value="1">
+          <input class="otp-box" maxlength="1" value="9">
+        </div>
+        <button class="btn-primary" onclick="showLoginStep('step-profile')">
+          <i class="fas fa-check"></i> Verify OTP
+        </button>
+        <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--grey);">Didn't receive? <span style="color:var(--green-main);font-weight:700;cursor:pointer;">Resend</span></div>
+      </div>
+
+      <div id="step-profile" style="padding:22px;display:none;">
+        <div style="font-size:18px;font-weight:800;color:var(--text-dark);margin-bottom:4px;">Your Profile</div>
+        <div style="font-size:13px;color:var(--grey);margin-bottom:20px;">Fill in your details to create your AGRIPASS</div>
+        <div class="input-group">
+          <label><i class="fas fa-user"></i> Full Name</label>
+          <input type="text" value="Ramesh Kumar">
+        </div>
+        <div class="input-group">
+          <label><i class="fas fa-map-marker-alt"></i> State</label>
+          <select><option>Maharashtra</option><option>Punjab</option><option>Uttar Pradesh</option><option>Tamil Nadu</option></select>
+        </div>
+        <div class="input-group">
+          <label><i class="fas fa-city"></i> District</label>
+          <select><option>Nashik</option><option>Pune</option><option>Aurangabad</option></select>
+        </div>
+        <div class="input-group">
+          <label><i class="fas fa-home"></i> Village</label>
+          <input type="text" value="Sinnar">
+        </div>
+        <button class="btn-primary" onclick="goToHome()">
+          <i class="fas fa-id-card"></i> Create My AGRIPASS
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 3 — HOME
+  ══════════════════════════════════ -->
+  <div class="screen" id="home" style="flex-direction:column;">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#0d2b1d,#1e6b46);padding:18px 18px 22px;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <div style="color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;">Welcome back,</div>
+          <div style="color:white;font-size:20px;font-weight:800;margin-top:2px;">Ramesh Kumar</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:11px;margin-top:2px;"><i class="fas fa-map-marker-alt"></i> Sinnar, Nashik</div>
+        </div>
+        <div style="width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,0.25);">
+          <i class="fas fa-bell" style="color:white;font-size:16px;"></i>
+        </div>
+      </div>
+
+      <!-- Score Card in Header -->
+      <div style="background:rgba(255,255,255,0.12);border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,0.18);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="color:rgba(255,255,255,0.7);font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">AGRIPASS Trust Score</div>
+            <div style="color:white;font-size:44px;font-weight:900;line-height:1;">65</div>
+            <div style="color:rgba(255,255,255,0.6);font-size:11px;">out of 100</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="background:#f0d060;color:#1a1a1a;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:10px;">
+              <i class="fas fa-check-circle"></i> Active Farmer
+            </div>
+            <div style="color:rgba(255,255,255,0.7);font-size:10px;">Loan Eligible</div>
+            <div style="color:white;font-size:20px;font-weight:800;">₹1,00,000</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;height:6px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden;">
+          <div style="width:65%;height:100%;background:linear-gradient(90deg,#f0d060,#3aab68);border-radius:3px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="color:rgba(255,255,255,0.5);font-size:10px;">0</span>
+          <span style="color:rgba(255,255,255,0.5);font-size:10px;">100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-content">
+
+      <!-- Satellite Alert -->
+      <div style="margin:12px 14px 0;background:#f0faf4;border-radius:14px;padding:14px;display:flex;gap:12px;align-items:flex-start;border:1px solid #c3e6cb;">
+        <div style="width:36px;height:36px;background:#d4edda;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fas fa-satellite" style="color:var(--green-main);font-size:16px;"></i>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:var(--green-dark);">Satellite Update — June 2025</div>
+          <div style="font-size:12px;color:var(--text-mid);margin-top:3px;line-height:1.5;">Rice crop confirmed healthy. NDVI: 0.68 (Excellent) <span style="color:var(--green-main);font-weight:700;">+5 pts added</span></div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-label">Quick Actions</div>
+      <div class="quick-actions">
+        <div class="action-card" onclick="showScreen('farmproof')">
+          <div class="action-icon"><i class="fas fa-shield-alt" style="color:var(--green-main);"></i></div>
+          <div class="action-title">FarmProof</div>
+          <div class="action-sub">Trust Score & Passport</div>
+        </div>
+        <div class="action-card" onclick="showScreen('agridecay')">
+          <div class="action-icon"><i class="fas fa-seedling" style="color:#e05c00;"></i></div>
+          <div class="action-title">AgriDecay</div>
+          <div class="action-sub">Harvest Decision</div>
+        </div>
+        <div class="action-card" onclick="showScreen('alerts')">
+          <div class="action-icon" style="position:relative;">
+            <i class="fas fa-bell" style="color:var(--blue-govt);"></i>
+            <div style="position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:var(--orange);border-radius:50%;font-size:8px;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">3</div>
+          </div>
+          <div class="action-title">Alerts</div>
+          <div class="action-sub">3 new updates</div>
+        </div>
+        <div class="action-card" onclick="showPassport()">
+          <div class="action-icon"><i class="fas fa-id-card" style="color:var(--gold);"></i></div>
+          <div class="action-title">My Passport</div>
+          <div class="action-sub">Show to bank</div>
+        </div>
+      </div>
+
+      <!-- Score Breakdown -->
+      <div class="section-label">Score Breakdown</div>
+      <div class="card" style="margin-top:0;">
+        <div class="score-row">
+          <div class="score-row-icon">🏠</div>
+          <div class="score-row-label">Land Record</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:100%;"></div></div>
+          <div class="score-pts">30/30</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-icon">🛰️</div>
+          <div class="score-row-label">Satellite NDVI</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:83%;"></div></div>
+          <div class="score-pts">25/30</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-icon">🌱</div>
+          <div class="score-row-label">Intent & Prep</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:50%;"></div></div>
+          <div class="score-pts">10/20</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-icon">👥</div>
+          <div class="score-row-label">Community</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:50%;"></div></div>
+          <div class="score-pts">5/10</div>
+        </div>
+        <div class="score-row" style="margin-bottom:0;">
+          <div class="score-row-icon">🧾</div>
+          <div class="score-row-label">Receipts</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:50%;"></div></div>
+          <div class="score-pts">5/10</div>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--grey-ultra);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--grey);">Next milestone</span>
+          <span style="font-size:12px;font-weight:700;color:var(--green-dark);"><i class="fas fa-arrow-up" style="font-size:10px;"></i> 75 pts → ₹3,00,000</span>
+        </div>
+      </div>
+
+      <!-- Farm Info -->
+      <div class="section-label">My Farm</div>
+      <div class="card" style="margin-top:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <div style="font-size:16px;font-weight:800;color:var(--text-dark);">Sinnar Farm</div>
+            <div style="font-size:12px;color:var(--grey);margin-top:2px;"><i class="fas fa-map-marker-alt" style="font-size:10px;"></i> Nashik, Maharashtra</div>
+          </div>
+          <div class="tag tag-green"><i class="fas fa-check-circle"></i> Verified</div>
+        </div>
+        <div style="background:var(--green-ultra);border-radius:12px;height:90px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;border:1px solid var(--green-pale);">
+          <div style="text-align:center;">
+            <i class="fas fa-map" style="font-size:24px;color:var(--green-main);margin-bottom:6px;display:block;"></i>
+            <span style="font-size:12px;color:var(--green-dark);font-weight:600;">Farm boundary mapped — 2.5 Acres</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <div style="text-align:center;padding:10px 6px;background:var(--grey-ultra);border-radius:10px;">
+            <div style="font-size:16px;font-weight:800;color:var(--text-dark);">2.5</div>
+            <div style="font-size:10px;color:var(--grey);margin-top:2px;">Acres</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;background:var(--grey-ultra);border-radius:10px;">
+            <div style="font-size:16px;font-weight:800;color:var(--text-dark);">Rice</div>
+            <div style="font-size:10px;color:var(--grey);margin-top:2px;">Crop</div>
+          </div>
+          <div style="text-align:center;padding:10px 6px;background:var(--green-ultra);border-radius:10px;border:1px solid var(--green-pale);">
+            <div style="font-size:16px;font-weight:800;color:var(--green-dark);">0.68</div>
+            <div style="font-size:10px;color:var(--green-main);margin-top:2px;font-weight:700;">NDVI</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="showScreen('home')">
+        <i class="fas fa-home"></i>
+        <div class="nav-label">Home</div>
+      </div>
+      <div class="nav-item" onclick="showScreen('farmproof')">
+        <i class="fas fa-shield-alt"></i>
+        <div class="nav-label">FarmProof</div>
+      </div>
+      <div class="nav-item" onclick="showScreen('agridecay')">
+        <i class="fas fa-seedling"></i>
+        <div class="nav-label">Harvest</div>
+      </div>
+      <div class="nav-item" onclick="showScreen('alerts')" style="position:relative;">
+        <i class="fas fa-bell"></i>
+        <div class="nav-badge">3</div>
+        <div class="nav-label">Alerts</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 4 — FARMPROOF
+  ══════════════════════════════════ -->
+  <div class="screen" id="farmproof" style="flex-direction:column;">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h2><i class="fas fa-shield-alt" style="font-size:16px;"></i> FarmProof</h2>
+          <p>Farmer Trust Score System</p>
+        </div>
+        <button class="back-btn" onclick="showScreen('home')"><i class="fas fa-arrow-left"></i> Back</button>
+      </div>
+    </div>
+
+    <div class="scroll-content">
+
+      <!-- Big Score -->
+      <div style="background:linear-gradient(135deg,#0d2b1d,#1e6b46);padding:24px;text-align:center;">
+        <div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:6px;">Your Trust Score</div>
+        <div style="font-size:76px;font-weight:900;color:white;line-height:1;">65</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:12px;">out of 100</div>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);padding:8px 20px;border-radius:20px;border:1px solid rgba(255,255,255,0.25);">
+          <i class="fas fa-check-circle" style="color:#3aab68;"></i>
+          <span style="color:white;font-weight:700;font-size:13px;">Active Farmer Verified</span>
+        </div>
+      </div>
+
+      <!-- Tiers -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-layer-group"></i> Loan Eligibility Tiers</div>
+        <div class="tier-item">
+          <div class="tier-icon">🌱</div>
+          <div class="tier-score">Score 30+</div>
+          <div class="tier-amount">₹25,000</div>
+        </div>
+        <div class="tier-item active">
+          <div class="tier-icon">🌾</div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:800;color:var(--green-dark);">Score 50+ ← You are here</div>
+            <div style="font-size:10px;color:var(--green-main);margin-top:2px;">Active Farmer Status</div>
+          </div>
+          <div class="tier-amount">₹1,00,000</div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-icon">🌿</div>
+          <div class="tier-score">Score 75+</div>
+          <div class="tier-amount">₹3,00,000</div>
+        </div>
+        <div class="tier-item">
+          <div class="tier-icon">🏆</div>
+          <div class="tier-score">Score 90+</div>
+          <div class="tier-amount">₹5,00,000+</div>
+        </div>
+      </div>
+
+      <!-- Upload -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-file-alt"></i> Land Document Verification</div>
+        <div class="upload-box" onclick="simulateOCR()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <div style="margin-top:8px;"><strong>Upload Land Record</strong></div>
+          <p>Patta / Khatauni / RoR document</p>
+          <div style="margin-top:10px;" class="tag tag-green"><i class="fas fa-check-circle"></i> Already Verified</div>
+        </div>
+        <div id="ocrResult" style="margin-top:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-size:13px;font-weight:700;color:var(--green-dark);">OCR Extracted Data</span>
+            <span class="tag tag-green"><i class="fas fa-check-circle"></i> Verified</span>
+          </div>
+          <div class="ocr-row"><span class="ocr-key">Owner Name</span><span class="ocr-val">Ramesh Kumar</span></div>
+          <div class="ocr-row"><span class="ocr-key">Survey No.</span><span class="ocr-val">MH-NK-1247</span></div>
+          <div class="ocr-row"><span class="ocr-key">District</span><span class="ocr-val">Nashik, Maharashtra</span></div>
+          <div class="ocr-row"><span class="ocr-key">Land Area</span><span class="ocr-val">2.5 Acres</span></div>
+          <div class="ocr-row"><span class="ocr-key">Land Type</span><span class="ocr-val">Agricultural</span></div>
+          <div class="ocr-row"><span class="ocr-key">DigiLocker</span><span class="ocr-val" style="color:var(--green-main);"><i class="fas fa-check-circle"></i> Confirmed</span></div>
+        </div>
+      </div>
+
+      <!-- Score breakdown -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-chart-bar"></i> Score Breakdown</div>
+        <div class="score-row">
+          <div class="score-row-icon">🏠</div>
+          <div class="score-row-label">Land Record</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:100%;"></div></div>
+          <div class="score-pts">30/30</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-icon">🛰️</div>
+          <div class="score-row-label">Satellite NDVI</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:83%;"></div></div>
+          <div class="score-pts">25/30</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-icon">🌱</div>
+          <div class="score-row-label">Intent & Prep</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:50%;"></div></div>
+          <div class="score-pts">10/20</div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-icon">👥</div>
+          <div class="score-row-label">Community Vouch</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:50%;"></div></div>
+          <div class="score-pts">5/10</div>
+        </div>
+        <div class="score-row" style="margin-bottom:0;">
+          <div class="score-row-icon">🧾</div>
+          <div class="score-row-label">Mandi Receipt</div>
+          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:50%;"></div></div>
+          <div class="score-pts">5/10</div>
+        </div>
+      </div>
+
+      <div style="padding:0 14px 20px;">
+        <button class="btn-primary" onclick="showPassport()">
+          <i class="fas fa-id-card"></i> View My Farmer Passport
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 5 — PASSPORT (GOVT CARD)
+  ══════════════════════════════════ -->
+  <div class="screen" id="passport" style="flex-direction:column;">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h2><i class="fas fa-id-card" style="font-size:16px;"></i> Farmer Passport</h2>
+          <p>Government Verified Digital Identity</p>
+        </div>
+        <button class="back-btn" onclick="showScreen('farmproof')"><i class="fas fa-arrow-left"></i> Back</button>
+      </div>
+    </div>
+
+    <div class="scroll-content">
+
+      <!-- GOVERNMENT STYLE CARD -->
+      <div class="govt-card-outer">
+
+        <!-- HEADER -->
+        <div class="govt-card-header">
+          <div class="govt-emblem">🌾</div>
+          <div class="govt-header-text">
+            <div class="govt-ministry">Ministry of Agriculture & Farmers Welfare — Govt. of India</div>
+            <div class="govt-card-name">AGRIPASS</div>
+            <div class="govt-card-sub">Farmer Digital Identity Card</div>
+          </div>
+          <div class="govt-card-logo">
+            <i class="fas fa-leaf" style="font-size:18px;"></i>
+          </div>
+        </div>
+
+        <!-- GOLD STRIP -->
+        <div class="gold-strip"></div>
+
+        <!-- CARD BODY -->
+        <div class="govt-card-body">
+
+          <!-- PHOTO SECTION -->
+          <div class="farmer-photo-wrap">
+            <div class="farmer-photo">
+              <div class="farmer-photo-inner">
+                <div class="farmer-avatar-turban"></div>
+                <div class="farmer-avatar-head"></div>
+                <div class="farmer-avatar-body"></div>
+              </div>
+            </div>
+            <div class="photo-stamp">
+              <i class="fas fa-fingerprint" style="color:var(--blue-govt);font-size:14px;display:block;margin-bottom:2px;"></i>
+              Bio Verified
+            </div>
+          </div>
+
+          <!-- DETAILS SECTION -->
+          <div class="card-details">
+            <div class="card-field">
+              <div class="card-field-label">Full Name</div>
+              <div class="card-field-value">RAMESH KUMAR</div>
+            </div>
+            <div class="card-field">
+              <div class="card-field-label">Location</div>
+              <div class="card-field-value" style="font-size:11px;">Sinnar, Nashik, Maharashtra</div>
+            </div>
+            <div class="card-field">
+              <div class="card-field-label">Farm Area</div>
+              <div class="card-field-value">2.5 Acres <span style="font-size:10px;color:var(--green-main);font-weight:700;">✓ Verified</span></div>
+            </div>
+            <div class="card-field">
+              <div class="card-field-label">Trust Score</div>
+              <div class="card-field-value big">65 <span style="font-size:13px;color:var(--grey);font-weight:600;">/ 100</span></div>
+              <div class="score-meter-bar">
+                <div class="score-meter-fill"></div>
+              </div>
+            </div>
+            <div class="card-field" style="margin-top:6px;">
+              <div class="card-field-label">Loan Eligible</div>
+              <div style="font-size:13px;font-weight:800;color:var(--green-dark);">₹ 1,00,000</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GOLD STRIP -->
+        <div class="gold-strip"></div>
+
+        <!-- BOTTOM SECTION -->
+        <div class="govt-card-bottom">
+          <div class="card-id-section">
+            <div class="card-id-label">Passport ID</div>
+            <div class="card-id-value">AP-2025-MH-45821</div>
+            <div style="margin-top:6px;">
+              <div class="card-id-label">Crop Season</div>
+              <div class="card-id-value" style="font-size:10px;">Kharif 2025 — Rice</div>
+            </div>
+          </div>
+          <div>
+            <div class="qr-wrap">
+              <div class="qr-inner">
+                <div class="qr-cell b"></div><div class="qr-cell b"></div><div class="qr-cell b"></div><div class="qr-cell b"></div><div class="qr-cell b"></div>
+                <div class="qr-cell b"></div><div class="qr-cell w"></div><div class="qr-cell b"></div><div class="qr-cell w"></div><div class="qr-cell b"></div>
+                <div class="qr-cell b"></div><div class="qr-cell b"></div><div class="qr-cell w"></div><div class="qr-cell b"></div><div class="qr-cell b"></div>
+                <div class="qr-cell b"></div><div class="qr-cell w"></div><div class="qr-cell b"></div><div class="qr-cell w"></div><div class="qr-cell b"></div>
+                <div class="qr-cell b"></div><div class="qr-cell b"></div><div class="qr-cell b"></div><div class="qr-cell b"></div><div class="qr-cell b"></div>
+              </div>
+            </div>
+            <div style="font-size:9px;color:var(--grey);text-align:center;margin-top:4px;font-weight:600;">SCAN TO VERIFY</div>
+          </div>
+        </div>
+
+        <!-- VALIDITY -->
+        <div class="validity-strip">
+          <div>
+            <div class="validity-text">Issue Date: 01 Jan 2025</div>
+            <div class="validity-text" style="margin-top:2px;">Status: <span style="color:#7fff9e;font-weight:700;">ACTIVE</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div class="validity-text">Valid Until</div>
+            <div class="validity-date">31 MAR 2026</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Verification Sources -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-check-double"></i> Verification Sources</div>
+        <div class="verify-item">
+          <div class="verify-icon">🛰️</div>
+          <div class="verify-content">
+            <div class="verify-title">ESA Sentinel-2 Satellite</div>
+            <div class="verify-sub">5 months NDVI confirmed • NDVI: 0.68</div>
+          </div>
+          <div class="tag tag-green"><i class="fas fa-check"></i></div>
+        </div>
+        <div class="verify-item">
+          <div class="verify-icon">📋</div>
+          <div class="verify-content">
+            <div class="verify-title">DigiLocker Land Record</div>
+            <div class="verify-sub">Survey No. MH-NK-1247</div>
+          </div>
+          <div class="tag tag-green"><i class="fas fa-check"></i></div>
+        </div>
+        <div class="verify-item">
+          <div class="verify-icon">👥</div>
+          <div class="verify-content">
+            <div class="verify-title">Community Attestation</div>
+            <div class="verify-sub">1 verified farmer vouched</div>
+          </div>
+          <div class="tag tag-green"><i class="fas fa-check"></i></div>
+        </div>
+        <div class="verify-item">
+          <div class="verify-icon">🧾</div>
+          <div class="verify-content">
+            <div class="verify-title">Agmarknet Transaction</div>
+            <div class="verify-sub">1 verified mandi receipt</div>
+          </div>
+          <div class="tag tag-green"><i class="fas fa-check"></i></div>
+        </div>
+      </div>
+
+      <!-- Security Hash -->
+      <div class="card">
+        <div class="card-title"><i class="fas fa-lock"></i> Tamper-Proof Security</div>
+        <div style="background:var(--grey-ultra);border-radius:10px;padding:12px;font-size:10px;color:var(--grey);word-break:break-all;font-family:monospace;line-height:1.6;border:1px solid var(--grey-mid);">
+          SHA-256: a3f8c2d1e9b4f6a2c8d3e1f9b4a7c2d1e8f3b6a2c9d4e1f8b3a7c2d1e9f4b6
+        </div>
+        <div style="font-size:11px;color:var(--grey);margin-top:8px;display:flex;align-items:center;gap:6px;">
+          <i class="fas fa-info-circle" style="color:var(--blue-govt);"></i>
+          Any modification breaks this hash and flags the passport as invalid.
+        </div>
+      </div>
+
+      <div style="padding:0 14px 20px;display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary" onclick="alert('📄 AGRIPASS Passport PDF downloaded!')">
+          <i class="fas fa-download"></i> Download PDF
+        </button>
+        <button class="btn-secondary" onclick="alert('🔗 Share link copied to clipboard!')">
+          <i class="fas fa-share-alt"></i> Share with Bank
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 6 — AGRIDECAY
+  ══════════════════════════════════ -->
+  <div class="screen" id="agridecay" style="flex-direction:column;">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h2><i class="fas fa-seedling" style="font-size:16px;"></i> AgriDecay</h2>
+          <p>Post-Harvest Decision Engine</p>
+        </div>
+        <button class="back-btn" onclick="showScreen('home')"><i class="fas fa-arrow-left"></i> Back</button>
+      </div>
+    </div>
+
+    <div class="scroll-content">
+
+      <!-- Input Form -->
+      <div id="harvestForm">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-edit"></i> Enter Harvest Details</div>
+          <div class="input-group">
+            <label><i class="fas fa-leaf"></i> Crop Type</label>
+            <select id="cropSelect">
+              <option>Tomato</option>
+              <option>Onion</option>
+              <option>Rice</option>
+              <option>Wheat</option>
+              <option>Potato</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label><i class="fas fa-weight"></i> Quantity (kg)</label>
+            <input type="number" value="500">
+          </div>
+          <div class="input-group">
+            <label><i class="fas fa-calendar"></i> Harvested On</label>
+            <input type="text" value="Today — 15 June 2025">
+          </div>
+          <div class="input-group">
+            <label><i class="fas fa-map-marker-alt"></i> Your Location</label>
+            <input type="text" value="Sinnar, Nashik (Auto-detected 📍)">
+          </div>
+          <button class="btn-orange" onclick="runAgriDecay()">
+            <i class="fas fa-search"></i> Get Selling Decision
+          </button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="decayResults" style="display:none;">
+
+        <!-- Perishability Clock -->
+        <div style="padding:14px 14px 0;">
+          <div class="decay-clock">
+            <div class="clock-label"><i class="fas fa-clock"></i> Freshness Remaining</div>
+            <div class="clock-time" id="clockDisplay">31:00:00</div>
+            <div class="clock-sub">Hours : Minutes : Seconds</div>
+            <div style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,0.2);padding:6px 14px;border-radius:20px;font-size:11px;">
+              <i class="fas fa-thermometer-half"></i> 34°C — High Decay Risk
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="recommendation-box">
+          <div class="rec-label"><i class="fas fa-check-circle"></i> Our Recommendation</div>
+          <div class="rec-main">SELL TODAY at Lasalgaon Mandi</div>
+          <div class="rec-detail">
+            <i class="fas fa-chart-line-down"></i> Price is FALLING — Every 24hrs = ₹1,500 loss<br>
+            <i class="fas fa-clock"></i> Leave within 4 hours for best result
+          </div>
+          <div class="rec-earning">Net: ₹7,800</div>
+        </div>
+
+        <!-- Mandi Comparison -->
+        <div class="card">
+          <div class="card-title"><i class="fas fa-store"></i> Mandi Comparison — 500kg Tomato</div>
+          <table class="mandi-table">
+            <tr>
+              <th>Mandi</th>
+              <th>₹/kg</th>
+              <th>Transport</th>
+              <th>NET</th>
+            </tr>
+            <tr class="best-row">
+              <td>Lasalgaon <span class="best-tag">BEST</span></td>
+              <td>₹18</td>
+              <td>₹1,200</td>
+              <td style="color:var(--green-dark);">₹7,800</td>
+            </tr>
+            <tr>
+              <td>Pimpalgaon</td>
+              <td>₹16</td>
+              <td>₹800</td>
+              <td>₹7,200</td>
+            </tr>
+            <tr>
+              <td>Nashik City</td>
+              <td>₹15</td>
+              <td>₹400</td>
+              <td>₹7,100</td>
+            </tr>
+            <tr>
+              <td>Sangamner</td>
+              <td>₹14</td>
+              <td>₹600</td>
+              <td>₹6,400</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Price Trend -->
+        <div class="card">
+          <div class="card-title"><i class="fas fa-chart-line"></i> 7-Day Price Trend</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <span style="font-size:12px;color:var(--grey);">Tomato at Lasalgaon</span>
+            <span class="tag tag-red"><i class="fas fa-arrow-down"></i> Falling</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:65px;margin-bottom:6px;">
+            <div style="flex:1;background:var(--green-light);border-radius:4px 4px 0 0;height:100%;position:relative;"><span style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--grey);white-space:nowrap;">₹22</span></div>
+            <div style="flex:1;background:var(--green-light);border-radius:4px 4px 0 0;height:90%;"></div>
+            <div style="flex:1;background:var(--green-mid);border-radius:4px 4px 0 0;height:80%;"></div>
+            <div style="flex:1;background:#ff9800;border-radius:4px 4px 0 0;height:75%;"></div>
+            <div style="flex:1;background:var(--orange);border-radius:4px 4px 0 0;height:70%;position:relative;border:2px solid #b84800;"><span style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--orange);font-weight:700;white-space:nowrap;">₹18</span></div>
+            <div style="flex:1;background:#e53935;border-radius:4px 4px 0 0;height:55%;opacity:0.5;"></div>
+            <div style="flex:1;background:#e53935;border-radius:4px 4px 0 0;height:40%;opacity:0.4;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:10px;color:var(--grey);">6 days ago</span>
+            <span style="font-size:10px;color:var(--orange);font-weight:700;">TODAY</span>
+            <span style="font-size:10px;color:var(--grey);">Predicted →</span>
+          </div>
+        </div>
+
+        <!-- Alternative -->
+        <div class="card" style="border-left:3px solid var(--orange);">
+          <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:var(--orange);"></i> If You Cannot Travel Today</div>
+          <div style="display:flex;gap:12px;align-items:center;padding:12px;background:#fff8f0;border-radius:12px;border:1px solid #ffe0c0;">
+            <div style="width:42px;height:42px;background:#ffe0c0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🏭</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text-dark);">Sunrise Tomato Processing</div>
+              <div style="font-size:11px;color:var(--grey);"><i class="fas fa-map-marker-alt"></i> Nashik — 8km away</div>
+              <div style="font-size:13px;font-weight:700;color:var(--orange);margin-top:4px;">Buying at ₹10/kg for paste</div>
+            </div>
+          </div>
+          <button class="btn-secondary" style="margin-top:12px;" onclick="alert('📞 Calling Sunrise Tomato Processing...')">
+            <i class="fas fa-phone"></i> Contact Processing Unit
+          </button>
+        </div>
+
+        <div style="padding:0 14px 20px;">
+          <button class="btn-primary" onclick="resetDecay()">
+            <i class="fas fa-redo"></i> New Harvest Decision
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="showScreen('home')"><i class="fas fa-home"></i><div class="nav-label">Home</div></div>
+      <div class="nav-item" onclick="showScreen('farmproof')"><i class="fas fa-shield-alt"></i><div class="nav-label">FarmProof</div></div>
+      <div class="nav-item active"><i class="fas fa-seedling"></i><div class="nav-label">Harvest</div></div>
+      <div class="nav-item" onclick="showScreen('alerts')"><i class="fas fa-bell"></i><div class="nav-label">Alerts</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       SCREEN 7 — ALERTS
+  ══════════════════════════════════ -->
+  <div class="screen" id="alerts" style="flex-direction:column;">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h2><i class="fas fa-bell" style="font-size:16px;"></i> Alerts</h2>
+          <p>3 new notifications</p>
+        </div>
+        <button class="back-btn" onclick="showScreen('home')"><i class="fas fa-arrow-left"></i> Back</button>
+      </div>
+    </div>
+
+    <div class="scroll-content">
+      <div class="section-label">Today</div>
+
+      <div class="alert-item">
+        <div class="alert-dot-wrap dot-green"><i class="fas fa-satellite" style="color:var(--green-main);font-size:15px;"></i></div>
+        <div class="alert-content">
+          <strong>Satellite Update — June 2025</strong>
+          <p>Rice crop confirmed healthy. NDVI: 0.68 (Excellent). Trust Score: +5 pts → Now 65/100</p>
+        </div>
+        <div class="alert-time">2h ago</div>
+      </div>
+
+      <div class="alert-item">
+        <div class="alert-dot-wrap dot-orange"><i class="fas fa-seedling" style="color:var(--orange);font-size:15px;"></i></div>
+        <div class="alert-content">
+          <strong>Harvest Alert — Tomato</strong>
+          <p>Your tomato crop is approaching harvest. Open AgriDecay now to get the best selling decision.</p>
+        </div>
+        <div class="alert-time">5h ago</div>
+      </div>
+
+      <div class="alert-item">
+        <div class="alert-dot-wrap dot-orange"><i class="fas fa-rupee-sign" style="color:var(--orange);font-size:15px;"></i></div>
+        <div class="alert-content">
+          <strong>Loan Repayment Reminder</strong>
+          <p>You earned ₹7,800 from Lasalgaon. EMI due: ₹2,000. Pay now → Trust Score +3 pts</p>
+        </div>
+        <div class="alert-time">1d ago</div>
+      </div>
+
+      <div class="section-label">Earlier</div>
+
+      <div class="alert-item">
+        <div class="alert-dot-wrap dot-blue"><i class="fas fa-users" style="color:var(--blue-govt);font-size:15px;"></i></div>
+        <div class="alert-content">
+          <strong>Community Vouch Received</strong>
+          <p>Suresh Patel (Score: 72) vouched for your farming. +5 Trust Points added automatically.</p>
+        </div>
+        <div class="alert-time">3d ago</div>
+      </div>
+
+      <div class="alert-item">
+        <div class="alert-dot-wrap dot-green"><i class="fas fa-university" style="color:var(--green-main);font-size:15px;"></i></div>
+        <div class="alert-content">
+          <strong>Loan Eligibility Upgraded</strong>
+          <p>Score crossed 50. You are now eligible for crop loan up to ₹1,00,000.</p>
+        </div>
+        <div class="alert-time">1w ago</div>
+      </div>
+
+      <div class="alert-item">
+        <div class="alert-dot-wrap dot-blue"><i class="fas fa-file-alt" style="color:var(--blue-govt);font-size:15px;"></i></div>
+        <div class="alert-content">
+          <strong>Land Record Verified</strong>
+          <p>Your document verified via DigiLocker. Survey No. MH-NK-1247. +30 Trust Points awarded.</p>
+        </div>
+        <div class="alert-time">2w ago</div>
+      </div>
+
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="showScreen('home')"><i class="fas fa-home"></i><div class="nav-label">Home</div></div>
+      <div class="nav-item" onclick="showScreen('farmproof')"><i class="fas fa-shield-alt"></i><div class="nav-label">FarmProof</div></div>
+      <div class="nav-item" onclick="showScreen('agridecay')"><i class="fas fa-seedling"></i><div class="nav-label">Harvest</div></div>
+      <div class="nav-item active"><i class="fas fa-bell"></i><div class="nav-label">Alerts</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+    let ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('statusBarEl').querySelector('.status-time').textContent =
+      h + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Screen Navigation
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const sc = document.getElementById(id).querySelector('.scroll-content');
+    if (sc) sc.scrollTop = 0;
+  }
+
+  // Login Steps
+  function showLoginStep(id) {
+    document.querySelectorAll('#login .scroll-content > div, #login > div:not(.login-top)').forEach(d => {
+      if (d.id && d.id.startsWith('step-')) d.style.display = 'none';
+    });
+    document.getElementById(id).style.display = 'block';
+  }
+
+  function selectLang(el) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function simulateOTP() {
+    showLoading('Sending OTP...', 'Via Firebase Authentication');
+    setTimeout(() => { hideLoading(); showLoginStep('step-otp'); }, 1500);
+  }
+
+  function goToHome() {
+    showLoading('Creating AGRIPASS...', 'Setting up your digital identity');
+    setTimeout(() => { hideLoading(); showScreen('home'); }, 2000);
+  }
+
+  function simulateOCR() {
+    showLoading('Reading Document...', 'OCR scanning in progress');
+    setTimeout(() => { hideLoading(); }, 2000);
+  }
+
+  function showPassport() {
+    showLoading('Generating Passport...', 'Creating tamper-proof identity card');
+    setTimeout(() => { hideLoading(); showScreen('passport'); }, 1800);
+  }
+
+  // AgriDecay
+  function runAgriDecay() {
+    showLoading('Analysing Harvest Data...', 'Checking satellite + weather + mandi prices');
+    setTimeout(() => {
+      hideLoading();
+      document.getElementById('harvestForm').style.display = 'none';
+      document.getElementById('decayResults').style.display = 'block';
+      startClock();
+    }, 2500);
+  }
+
+  function resetDecay() {
+    document.getElementById('harvestForm').style.display = 'block';
+    document.getElementById('decayResults').style.display = 'none';
+    stopClock();
+  }
+
+  // Countdown
+  let clockInterval = null;
+  let totalSeconds = 31 * 3600;
+
+  function startClock() {
+    stopClock();
+    clockInterval = setInterval(() => {
+      if (totalSeconds <= 0) { stopClock(); return; }
+      totalSeconds--;
+      let h = Math.floor(totalSeconds / 3600);
+      let m = Math.floor((totalSeconds % 3600) / 60);
+      let s = totalSeconds % 60;
+      const el = document.getElementById('clockDisplay');
+      if (el) el.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }, 1000);
+  }
+
+  function stopClock() {
+    if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+    totalSeconds = 31 * 3600;
+    const el = document.getElementById('clockDisplay');
+    if (el) el.textContent = '31:00:00';
+  }
+
+  // Loading
+  function showLoading(text, sub) {
+    document.getElementById('loadingText').textContent = text;
+    document.getElementById('loadingSub').textContent = sub;
+    document.getElementById('loadingOverlay').classList.add('show');
+  }
+
+  function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+  }
+</script>
+</body>
+</html>
